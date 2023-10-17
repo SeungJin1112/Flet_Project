@@ -1,11 +1,14 @@
+from db import *
 from ui import *
+from map import *
+from ai import *
 
 class Context():
     def fn_init(self): 
+        self._db=DbSqlite();
         self._ui=UiFlet();
-        # self._db=DbSqlite();
-        # self._map=MapKaKaoAPI();
-        # self._ai=AiChatGPT();
+        self._map=MapKaKaoAPI();
+        self._ai=AiChatGPT();
 
     def fn_start(self): pass;
         #self._ui.fn_start();
