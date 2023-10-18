@@ -3,15 +3,38 @@ from ui import *
 from map import *
 from ai import *
 
-class Context():
-    def fn_init(self): 
-        self._db=DbSqlite();
-        self._ui=UiFlet();
-        self._map=MapKaKaoAPI();
-        self._ai=AiChatGPT();
+g_instance = None; # Singleton
 
-    def fn_start(self): pass;
-        #self._ui.fn_start();
-    def fn_stop(self): pass
-    def fn_enable(self): pass
-    def fn_disable(self): pass
+class Context():
+
+    def __init__(self):
+        global g_instance;
+        
+        if g_instance == None:
+            self._db=DbSqlite();
+            self._ui=UiFlet();
+            self._map=MapKaKaoAPI();
+            self._ai=AiChatGPT();
+    
+            self._list=[self._db, self._ui, self._map, self._ai];
+            g_instance = self;
+
+    def fn_init(self): 
+         for iter in self._list:
+            iter.fn_init();
+        
+    def fn_start(self): 
+         for iter in self._list:
+            iter.fn_start();
+    
+    def fn_stop(self): 
+         for iter in self._list:
+            iter.fn_stop();
+        
+    def fn_enable(self): 
+         for iter in self._list:
+            iter.fn_enable();
+    
+    def fn_disable(self): 
+         for iter in self._list:
+            iter.fn_disable();
