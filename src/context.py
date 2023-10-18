@@ -18,10 +18,6 @@ class Context():
     
             self._list=[self._db, self._ui, self._map, self._ai];
             g_instance = self;
-
-    def fn_init(self): 
-         for iter in self._list:
-            iter.fn_init();
         
     def fn_start(self): 
          for iter in self._list:
