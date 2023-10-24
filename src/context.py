@@ -25,7 +25,7 @@ class Context():
     
     def fn_end(self): 
          for iter in self._list:
-            iter.fn_stop();
+            iter.fn_end();
         
     def fn_enable(self): 
          for iter in self._list:
