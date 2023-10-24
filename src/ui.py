@@ -35,7 +35,7 @@ class UiFlet():
         for iter in self._ui_list:
                 iter.fn_start();
 
-    def fn_stop(self): pass;
+    def fn_end(self): pass;
     def fn_enable(self): pass;
     def fn_disable(self): pass;
 ##################################################
@@ -49,7 +49,7 @@ class FletUiMainscreen():
         if g_ui_instance != None and g_ui_instance._ui_ft != None:
             g_ui_instance._ui_ft.app(target=g_ui_instance._ui_mainscreen.fn_flet_main);
     
-    def fn_stop(self): pass;
+    def fn_end(self): pass;
     def fn_enable(self): pass;
     def fn_disable(self): pass;
 
@@ -59,21 +59,21 @@ class FletUiMainscreen():
 class FletUiSearchbar():
     def __init__(self): pass;
     def fn_start(self): pass;
-    def fn_stop(self): pass;
+    def fn_end(self): pass;
     def fn_enable(self): pass;
     def fn_disable(self): pass;
 ##################################################
 class FletUiPanel():
     def __init__(self): pass;
     def fn_start(self): pass;
-    def fn_stop(self): pass;
+    def fn_end(self): pass;
     def fn_enable(self): pass;
     def fn_disable(self): pass;
 ##################################################
 class FletUiMapbutton():
     def __init__(self): pass;
     def fn_start(self): pass;
-    def fn_stop(self): pass;
+    def fn_end(self): pass;
     def fn_enable(self): pass;
     def fn_disable(self): pass;
 ##################################################

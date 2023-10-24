@@ -23,7 +23,7 @@ class Context():
          for iter in self._list:
             iter.fn_start();
     
-    def fn_stop(self): 
+    def fn_end(self): 
          for iter in self._list:
             iter.fn_stop();
         
