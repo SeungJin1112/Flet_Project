@@ -39,9 +39,10 @@ class DbSqlite():
         if g_sql3_instance == None:
             g_sql3_instance = self; 
     
-    def fn_start(self):
-            self.fn_init_create_tables();
-            self.fn_init_insert_tables();
+        self.fn_init_create_tables();
+        self.fn_init_insert_tables();
+    
+    def fn_start(self): pass;
 
     def fn_end(self): 
         if self._con != None: 
