@@ -49,6 +49,7 @@ class DbSqlite():
 
     def fn_enable(self): pass;
     def fn_disable(self): pass;
+    def fn_get_instance(self): pass;
 ##################################################
     def fn_init_create_tables(self):
         self._con = sql3.connect('auto_medic.db');
