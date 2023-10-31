@@ -1,16 +1,17 @@
 from context import *
+from ai import *
+
 import flet as ft
 
 g_ui_instance = None;
 
+g_ui_title = "AutoMedic";
+g_ui_theme_mode = "dark";
+
 ##################################################
 class UiFlet():
     _ui_ft = None;
-    
-    _ui_mainscreen = None;
-    _ui_searchbar = None;
-    _ui_panel = None;
-    _ui_mapbutton = None;
+    _ui_page = None;
 
     def __init__(self):
         global g_ui_instance;
@@ -18,145 +19,94 @@ class UiFlet():
         if g_ui_instance == None:
             g_ui_instance = self; 
         
-        if self._ui_ft == None:
-            self._ui_ft = ft;
+        if g_ui_instance._ui_ft == None:
+            g_ui_instance._ui_ft = ft;
     
-    def fn_start(self): 
-        self._ui_mainscreen=FletUiMainscreen();
-        self._ui_searchbar=FletUiSearchbar();
-        self._ui_panel=FletUiPanel();
-        self._ui_mapbutton=FletUiMapbutton();
-    
-        self._ui_list = [self._ui_mainscreen, 
-                         self._ui_searchbar, 
-                         self._ui_panel, 
-                         self._ui_mapbutton];
-    
-        for iter in self._ui_list:
-                iter.fn_start();
-
+    def fn_start(self): pass;
     def fn_end(self): pass;
     def fn_enable(self): pass;
     def fn_disable(self): pass;
+
+    def fn_get_instance(self):
+        if g_ui_instance != None:
+            return g_ui_instance;
 ##################################################
 class FletUiMainscreen():
+    _instance = None;
+
+    def __init__(self): 
+         _ctx = Context();
+         self._instance = self._instance._ui.fn_get_instance();
     
-    def __init__(self): pass;
-
     def fn_start(self): 
-        global g_ui_instance;
-
-        if g_ui_instance != None and g_ui_instance._ui_ft != None:
-            g_ui_instance._ui_ft.app(target=g_ui_instance._ui_mainscreen.fn_flet_main, view=ft.WEB_BROWSER);
+        if self._instance != None and self._instance._ui_ft != None:
+            self._instance._ui_ft.app(target=self.fn_flet_main, view=ft.WEB_BROWSER);
     
     def fn_end(self): pass;
     def fn_enable(self): pass;
     def fn_disable(self): pass;
-
+##################################################
+    def fn_option_title(self, page, title):
+        if title != None:
+            page.title = title;
+        else:
+            page.title = g_ui_title;
+    
+        page.update();
+#-------------------------------------------------
+    def fn_option_theme(self, page, mode):
+        if mode == "dark":
+            page.theme_mode = "dark";
+        elif mode == "light":
+            page.theme_mode = "light";
+        else:
+            page.theme_mode = g_ui_theme_mode;
+    
+        page.update();
+#-------------------------------------------------
+# main thread
     def fn_flet_main(self, page):
-        def view_pop(e):
-            page.views.pop()
-            top_view = page.views[-1]
-            page.go(top_view.route)
+        if self._instance != None:
+             self._instance._ui_page = page;
 
-        def send_message_click(e):
-            page.go("/result")
+        self.fn_option_title(page, None);
+        self.fn_option_theme(page, None);
+        self._instance._ui_page.vertical_alignment = self._instance._ui_page.horizontal_alignment = "center";
 
-        def route_change(e):
-            page.views.clear()
-            page.views.append(
-                ft.View(
-                    "/",
-                    [
-                        ft.Container(
-                            content=ft.Text(
-                                "AutoMedic",
-                                size=50,
-                                color='white',
-                                font_family='poppins',
-                                weight=ft.FontWeight.BOLD,
-                            ),
-                            bgcolor=ft.colors.SURFACE_VARIANT,
-                            alignment=ft.alignment.center,
-                            border_radius=5,
-                            padding=5,
-                            expand=True,
-                        ),
-                        ft.Row(
-                            [
-                                ft.TextField(
-                                    hint_text="증상을 입력하세요",
-                                    autofocus=True,
-                                    shift_enter=True,
-                                    min_lines=1,
-                                    max_lines=5,
-                                    filled=True,
-                                    border=ft.InputBorder.NONE,
-                                    bgcolor=ft.colors.SURFACE_VARIANT,
-                                    expand=True,
-                                    #on_submit=send_message_click,
-                                ),
-                                ft.IconButton(
-                                    icon=ft.icons.SEND_ROUNDED,
-                                    tooltip="검색 결과 확인",
-                                    on_click=send_message_click,
-                                ),
-                            ]
-                        )
-                    ],
-                )
-            )
-            if page.route == "/result":
-                page.views.append(
-                    ft.View(
-                        "/result",
-                        [
-                            ft.Row(
-                                [
-                                    ft.Container(
-                                        content=ft.Text(
-                                            "panel area", 
-                                            size=20, 
-                                            color='black', 
-                                            font_family='poppins', 
-                                            weight=ft.FontWeight.BOLD
-                                        ),
-                                        alignment=ft.alignment.center,
-                                        bgcolor=ft.colors.SURFACE_VARIANT,
-                                        border_radius=5,
-                                        padding=10,
-                                        height=page.height,
-                                        expand=2,
-                                    ),
-                                    ft.Container(
-                                        content=ft.Text(
-                                            "map area", 
-                                            size=20, 
-                                            color='black', 
-                                            font_family='poppins', 
-                                            weight=ft.FontWeight.BOLD
-                                        ),
-                                        alignment=ft.alignment.center,
-                                        bgcolor=ft.colors.SURFACE_VARIANT,
-                                        border_radius=5,
-                                        padding=10,
-                                        height=page.height,
-                                        expand=3,
-                                    )
-                                ]
-                            )
-                        ],
-                    )
-                )
-            page.update()
+        searchbar = FletUiSearchbar(self._instance);
+        searchbar.fn_start();
 
-        page.on_route_change = route_change
-        page.on_view_pop = view_pop
-        page.go(page.route)
 ##################################################
 class FletUiSearchbar():
-    def __init__(self): pass;
-    def fn_start(self): pass;
+    _instance = None;
+
+    def __init__(self, ui): 
+        self._instance = ui.fn_get_instance();
+    
+    def fn_start(self):
+        self._instance._ui_page.add(
+             self._instance._ui_ft.Container(
+                 content=self._instance._ui_ft.Row([
+                    self._instance._ui_ft.TextField(
+                        hint_text="Send a message",
+                        autofocus=True,
+                        shift_enter=True,
+                        min_lines=1,
+                        max_lines=5,
+                        filled=True,
+                        #border=self._instance._ui_ft.InputBorder.NONE,
+                        #bgcolor=self._instance._ui_ft.colors.SURFACE_VARIANT,
+                        expand=True                      
+                    ),
+                    self._instance._ui_ft.IconButton(
+                        icon=ft.icons.SEND_ROUNDED#,
+                        #on_click=send_message_click
+                    )
+                ]),
+                 alignment=self._instance._ui_ft.alignment.Alignment(0,0.8),
+                 expand=True,
+             )
+        );
     def fn_end(self): pass;
     def fn_enable(self): pass;
     def fn_disable(self): pass;

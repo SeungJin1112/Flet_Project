@@ -21,25 +21,26 @@ class AiChatGPT():
             self._ai = openai;
             self._ai.api_key = g_ai_api_key;
 
-    def fn_start(self): 
-        self._ai_prompt=AiPrompt();
-    
-        self._ai_list = [self._ai_prompt];
-    
-        for iter in self._ai_list:
-                iter.fn_start();
-           
+    def fn_start(self): pass;
     def fn_end(self): pass;
     def fn_enable(self): pass;
     def fn_disable(self): pass;
+
+    def fn_get_instance(self):
+        if g_ai_instance != None:
+            return g_ai_instance;
     
 class AiPrompt():
-    def __init__(self): pass;
+    _instance = None;
+
+    def __init__(self, ai): 
+        self._instance = ai.fn_get_instance();
+    
     def fn_start(self): 
         # 통신 테스트
         if g_ai_api_key != "":
-            if g_ai_instance != None and g_ai_instance._ai != None: 
-                response = g_ai_instance._ai.ChatCompletion.create(
+            if self._instance != None and self._instance._ai != None: 
+                response = self._instance._ai.ChatCompletion.create(
                     model="gpt-3.5-turbo",
                     messages=[{"role": "system", "content": "You are a doctor."},
                             {"role": "user", "content": "hi"}],
@@ -54,8 +55,8 @@ class AiPrompt():
 
     def fn_prompt(self, prompt): 
         if g_ai_api_key != "":
-            if g_ai_instance != None and g_ai_instance._ai != None: 
-                response = g_ai_instance._ai.ChatCompletion.create(
+            if self._instance != None and self._instance._ai != None: 
+                response = self._instance._ai.ChatCompletion.create(
                     model="gpt-3.5-turbo",
                     messages=[{"role": "system", "content": "You are a doctor."},
                             {"role": "user", "content": "hi"}],
