@@ -43,7 +43,6 @@ class DbSqlite():
         self.fn_init_insert_tables();
     
     def fn_start(self): pass;
-
     def fn_end(self): 
         if self._con != None: 
             self._con.close();

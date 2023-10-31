@@ -2,6 +2,7 @@ import flet as ft
 
 from context import *
 from ai import *
+from db import *
 
 g_ui_instance = None;
 
@@ -32,15 +33,18 @@ class UiFlet():
             return g_ui_instance;
 ##################################################
 class FletUiMainscreen():
-    _instance = None;
+    _ui_instance = None;
+    _ai_instance = None;
 
-    def __init__(self): 
-         _ctx = Context();
-         self._instance = self._instance._ui.fn_get_instance();
+    def __init__(self, instance): 
+        self._db_instance = instance._db.fn_get_instance();
+        self._map_instance = instance._map.fn_get_instance();
+        self._ai_instance = instance._ai.fn_get_instance();
+        self._ui_instance = instance._ui.fn_get_instance();
     
     def fn_start(self): 
-        if self._instance != None and self._instance._ui_ft != None:
-            self._instance._ui_ft.app(target=self.fn_flet_main, view=ft.WEB_BROWSER);
+        if self._ui_instance != None and self._ui_instance._ui_ft != None:
+            self._ui_instance._ui_ft.app(target=self.fn_flet_main, view=ft.WEB_BROWSER);
     
     def fn_end(self): pass;
     def fn_enable(self): pass;
@@ -66,14 +70,14 @@ class FletUiMainscreen():
 #-------------------------------------------------
 # main thread
     def fn_flet_main(self, page):
-        if self._instance != None:
-             self._instance._ui_page = page;
+        if self._ui_instance != None:
+             self._ui_instance._ui_page = page;
 
         self.fn_option_title(page, None);
         self.fn_option_theme(page, None);
-        self._instance._ui_page.vertical_alignment = self._instance._ui_page.horizontal_alignment = "center";
+        self._ui_instance._ui_page.vertical_alignment = self._ui_instance._ui_page.horizontal_alignment = "center";
 
-        searchbar = FletUiSearchbar(self._instance);
+        searchbar = FletUiSearchbar(self._ui_instance);
         searchbar.fn_start();
 
 ##################################################
