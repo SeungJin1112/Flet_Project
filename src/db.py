@@ -1,8 +1,8 @@
-from context import *
-
 import csv
 import sqlite3 as sql3
 import os
+
+from context import *
 
 g_sql3_instance = None;
 ##################################################

@@ -1,7 +1,7 @@
+import flet as ft
+
 from context import *
 from ai import *
-
-import flet as ft
 
 g_ui_instance = None;
 

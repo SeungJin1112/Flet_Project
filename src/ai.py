@@ -1,6 +1,6 @@
-from context import * 
-
 import openai
+
+from context import * 
 
 g_ai_instance = None;
 

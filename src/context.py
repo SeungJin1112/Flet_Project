@@ -1,9 +1,9 @@
+import threading
+
 from db import *
 from map import *
 from ai import *
 from ui import *
-
-import threading
 
 g_instance = None; # Singleton
 
@@ -29,7 +29,6 @@ class Context():
             self._list=[self._db, self._map, self._ai, self._ui];
         
     def fn_start(self): 
-        '''
         for iter in self._list:
             if self._ui != iter:
                 t = threading.Thread(target=iter.fn_start);
@@ -37,8 +36,6 @@ class Context():
                 t.join();
             else:
                 iter.fn_start();
-        '''
-        pass;
     
     def fn_end(self): 
         for iter in self._list:
