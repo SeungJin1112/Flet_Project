@@ -1,4 +1,5 @@
 import flet as ft
+import time
 
 from context import *
 from ai import *
@@ -13,6 +14,8 @@ g_ui_theme_mode = "dark";
 class UiFlet():
     _ui_ft = None;
     _ui_page = None;
+#-------------------------------------------------
+    _ui_main_con = None;
 
     def __init__(self):
         global g_ui_instance;
@@ -44,7 +47,7 @@ class FletUiMainscreen():
     
     def fn_start(self): 
         if self._ui_instance != None and self._ui_instance._ui_ft != None:
-            self._ui_instance._ui_ft.app(target=self.fn_flet_main, view=ft.WEB_BROWSER);
+            self._ui_instance._ui_ft.app(port=8550, target=self.fn_flet_main, view=ft.WEB_BROWSER);
     
     def fn_end(self): pass;
     def fn_enable(self): pass;
@@ -72,13 +75,28 @@ class FletUiMainscreen():
     def fn_flet_main(self, page):
         if self._ui_instance != None:
              self._ui_instance._ui_page = page;
-
+        
         self.fn_option_title(page, None);
         self.fn_option_theme(page, None);
-        self._ui_instance._ui_page.vertical_alignment = self._ui_instance._ui_page.horizontal_alignment = "center";
+
+        time.sleep(1);
+
+        main_container = self._ui_instance._ui_ft.Container(
+            width=(self._ui_instance._ui_page.width - 1), 
+            height=(self._ui_instance._ui_page.height * 0.9), 
+            bgcolor=self._ui_instance._ui_ft.colors.GREEN_200)
+
+        self._ui_instance._ui_page.add(main_container);
+        self._ui_instance._ui_page.update();
+
+        self._ui_instance._ui_main_con = main_container;
 
         searchbar = FletUiSearchbar(self._ui_instance);
         searchbar.fn_start();
+        panel = FletUiPanel(self._ui_instance);
+        panel.fn_start();
+        mapView =  FletUiMapbutton(self._ui_instance);
+        mapView.fn_start();
 
 ##################################################
 class FletUiSearchbar():
@@ -88,42 +106,87 @@ class FletUiSearchbar():
         self._instance = ui.fn_get_instance();
     
     def fn_start(self):
-        self._instance._ui_page.add(
-             self._instance._ui_ft.Container(
-                 content=self._instance._ui_ft.Row([
-                    self._instance._ui_ft.TextField(
-                        hint_text="Send a message",
-                        autofocus=True,
-                        shift_enter=True,
-                        min_lines=1,
-                        max_lines=5,
-                        filled=True,
-                        #border=self._instance._ui_ft.InputBorder.NONE,
-                        #bgcolor=self._instance._ui_ft.colors.SURFACE_VARIANT,
-                        expand=True                      
-                    ),
-                    self._instance._ui_ft.IconButton(
-                        icon=ft.icons.SEND_ROUNDED#,
-                        #on_click=send_message_click
-                    )
-                ]),
-                 alignment=self._instance._ui_ft.alignment.Alignment(0,0.8),
-                 expand=True,
-             )
+        searchbar_container = self._instance._ui_ft.Container(
+            content=self._instance._ui_ft.Row([
+                self._instance._ui_ft.TextField(
+                    hint_text="Send a message",
+                    autofocus=True,
+                    shift_enter=True,
+                    min_lines=1,
+                    max_lines=5,
+                    filled=True,
+                    expand=True
+                ),
+                self._instance._ui_ft.IconButton(
+                    icon=self._instance._ui_ft.icons.SEND_ROUNDED,
+                    on_click=self.fn_searchbar_click
+                )
+            ])
         );
+
+        self._instance._ui_page.add(
+            self._instance._ui_ft.Column(
+                controls=[
+                    searchbar_container
+                ]
+            )
+        );
+
+        self._instance._ui_page.update();
+    
     def fn_end(self): pass;
     def fn_enable(self): pass;
     def fn_disable(self): pass;
+    def fn_searchbar_click(e): 
+        # map
+        pass;
+
 ##################################################
 class FletUiPanel():
-    def __init__(self): pass;
-    def fn_start(self): pass;
+    _instance = None;
+    _panel_offset = -0.9;
+
+    def __init__(self, ui): 
+        self._instance = ui.fn_get_instance();
+    
+    def fn_start(self):
+
+        def animate(e):
+            if self._panel_offset == 0:
+                self._panel_offset = -0.9;
+                panel_container.offset = self._instance._ui_ft.transform.Offset(self._panel_offset, 0);
+                panel_container.update()
+            elif self._panel_offset == -0.9:
+                self._panel_offset = 0;
+                panel_container.offset = self._instance._ui_ft.transform.Offset(self._panel_offset, 0);
+                panel_container.update()
+
+        time.sleep(1);
+
+        panel_container=self._instance._ui_ft.Container(
+            width=500,
+            height=(self._instance._ui_page.height * 0.9), 
+            bgcolor=self._instance._ui_ft.colors.GREEN_100,
+            border_radius=20,
+            offset=self._instance._ui_ft.transform.Offset(self._panel_offset, 0),
+            animate_offset=self._instance._ui_ft.animation.Animation(300),
+            on_click=animate,
+        );
+
+        self._instance._ui_main_con.content = self._instance._ui_ft.Column([panel_container]);
+        self._instance._ui_page.update();
+
     def fn_end(self): pass;
     def fn_enable(self): pass;
     def fn_disable(self): pass;
+
 ##################################################
 class FletUiMapbutton():
-    def __init__(self): pass;
+    _instance = None;
+
+    def __init__(self, ui): 
+        self._instance = ui.fn_get_instance();
+    
     def fn_start(self): pass;
     def fn_end(self): pass;
     def fn_enable(self): pass;
