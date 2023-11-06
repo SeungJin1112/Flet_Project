@@ -1,6 +1,6 @@
-import csv
 import sqlite3 as sql3
 import os
+import openpyxl
 
 from context import *
 
@@ -10,25 +10,20 @@ g_DEFINE_CREATE_TABLE_APPROXIMATELY = """
     CREATE TABLE IF NOT EXISTS T_APPROXIMATELY
     (
         seq INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT,
-        desc TEXT
-    )
-""";
-#-------------------------------------------------
-g_DEFINE_CREATE_TABLE_DISEASES = """
-    CREATE TABLE IF NOT EXISTS T_DISEASES 
-    (
-        seq INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT,
-        desc TEXT,
-        list_approximately TEXT
+        item_standard_code TEXT,
+        product_name TEXT,
+        product_name_eng TEXT,
+        company_name TEXT,
+        company_name_eng TEXT,
+        main_ingredient TEXT,
+        main_ingredient_eng TEXT,
+        additives TEXT
     )
 """;
 #-------------------------------------------------
 g_DEFINE_CREATE_TABLE_REPORT = """
 """;
 ##################################################
-
 class DbSqlite():
     _con = None;
     _c = None;
@@ -56,32 +51,47 @@ class DbSqlite():
         self._c = self._con.cursor();
 
         self._c.execute(g_DEFINE_CREATE_TABLE_APPROXIMATELY);
-        self._c.execute(g_DEFINE_CREATE_TABLE_DISEASES);
         self._c.execute(g_DEFINE_CREATE_TABLE_REPORT);
 
         self._con.commit();
         self._con.close();
 ##################################################
     def fn_init_insert_tables(self):
-        lists_insert_data = [["approximately.csv","T_APPROXIMATELY","(NULL,?,?)"], 
-                     ["diseases.csv","T_DISEASES","(NULL,?,?,?)"], 
-                     ["report.csv","",""]];
+        insert_data_info = [
+            {"file_name": "의약품등제품정보목록.xlsx", "table_name": "T_APPROXIMATELY", "placeholders": "(NULL,?,?,?,?,?,?,?,?)"}
+        ]
         
-        self._con = sql3.connect('auto_medic.db');
-        self._c = self._con.cursor();
+        for data_info in insert_data_info:
+            file_name = data_info["file_name"]
+            table_name = data_info["table_name"]
+            placeholders = data_info["placeholders"]
 
-        for list_insert_data in lists_insert_data:
-            csv_name, table_name, args = list_insert_data;
+            if not os.path.exists(file_name):
+                print(file_name)
+                continue
 
-            if os.path.exists(csv_name):
-                with open(csv_name, 'r') as file:
-                    reader = csv.reader(file);
+            try:
+                workbook = openpyxl.load_workbook(file_name)
+                sheet = workbook.active
 
-                    for row in reader:
-                        self._c.execute("INSERT INTO "+table_name+" VALUES "+args, row);
-    
-        self._con.commit();
-        self._con.close();
+                with sql3.connect('auto_medic.db') as con:
+                    cursor = con.cursor()
 
+                    for row in sheet.iter_rows(min_row=2):
+                        data = (
+                            row[0].value,  # 품목기준코드
+                            row[1].value,  # 제품명
+                            row[2].value,  # 제품영문명
+                            row[3].value,  # 업체명
+                            row[4].value,  # 업체영문명
+                            row[10].value,  # 주성분
+                            row[29].value,  # 주성분영문
+                            row[11].value,  # 첨가제
+                        )
+                        cursor.execute(f"INSERT INTO {table_name} VALUES {placeholders}", data)
+                    con.commit()
 
-
+            except sql3.DatabaseError as e:
+                print(e)
+            except Exception as e:
+                print(e)
