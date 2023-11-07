@@ -67,7 +67,9 @@ class DbSqlite():
             placeholders = data_info["placeholders"]
 
             if not os.path.exists(file_name):
-                print(file_name)
+                continue
+
+            if self.fn_is_data_exist(table_name):
                 continue
 
             try:
@@ -95,3 +97,13 @@ class DbSqlite():
                 print(e)
             except Exception as e:
                 print(e)
+
+    def fn_is_data_exist(self, table_name):
+        self._con = sql3.connect('auto_medic.db')
+        self._c = self._con.cursor()
+
+        self._c.execute(f"SELECT COUNT(*) FROM {table_name}")
+        count = self._c.fetchone()[0]
+        self._con.close()
+
+        return count > 0

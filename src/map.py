@@ -4,7 +4,7 @@ import numpy as np
 import folium
 
 g_map_instance = None;
-g_map_rest_api_key = '2072e54e0364040f53dda8f558b64e0d';
+g_map_rest_api_key = '';
 g_map_search_keyword_url = 'https://dapi.kakao.com/v2/local/search/keyword.json'
 
 class MapKaKaoAPI():
