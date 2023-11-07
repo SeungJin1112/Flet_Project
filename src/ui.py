@@ -1,5 +1,6 @@
 import flet as ft
 import time
+import threading
 
 from context import *
 from ai import *
@@ -143,12 +144,12 @@ class FletUiSearchbar():
         pass;
 
 ##################################################
+g_ui_panel_con = None;
+g_ui_panel_top = None;
+g_ui_panel_bottom = None;
+
 class FletUiPanel():
     _instance = None;
-
-    _ui_panel_con = None;
-    _ui_panel_top = None;
-    _ui_panel_bottom = None;
 
     _panel_offset = -0.9;
 
@@ -156,56 +157,70 @@ class FletUiPanel():
         self._instance = ui.fn_get_instance();
     
     def fn_start(self):
+        global g_ui_panel_con;
 
         def animate(e):
             if self._panel_offset == 0:
                 self._panel_offset = -0.9;
-                panel_container.offset = self._instance._ui_ft.transform.Offset(self._panel_offset, 0);
-                panel_container.update()
+
+                if g_ui_panel_con != None:
+                    g_ui_panel_con.offset = self._instance._ui_ft.transform.Offset(self._panel_offset, 0);
+                
+                self._instance._ui_page.update();
+
+
             elif self._panel_offset == -0.9:
                 self._panel_offset = 0;
-                panel_container.offset = self._instance._ui_ft.transform.Offset(self._panel_offset, 0);
-                panel_container.update()
+
+                if g_ui_panel_con != None:
+                    g_ui_panel_con.offset = self._instance._ui_ft.transform.Offset(self._panel_offset, 0);
+
+                self._instance._ui_page.update();
 
         time.sleep(1);
 
-        panel_container=self._instance._ui_ft.Container(
+        g_ui_panel_con=self._instance._ui_ft.Container(
             width=500,
             height=(self._instance._ui_page.height * 0.9), 
-            bgcolor=self._instance._ui_ft.colors.GREY_200,
+            bgcolor=self._instance._ui_ft.colors.BLACK,
             border_radius=20,
             offset=self._instance._ui_ft.transform.Offset(self._panel_offset, 0),
             animate_offset=self._instance._ui_ft.animation.Animation(300),
             on_click=animate,
         );
 
-        self._instance._ui_main_con.content = self._instance._ui_ft.Column([panel_container]);
+        self._instance._ui_main_con.content = self._instance._ui_ft.Column([g_ui_panel_con]);
         self._instance._ui_page.update();
-    
-        self._instance._ui_panel_con = panel_container;
-    
-        self.fn_enable();
+
+        t = threading.Thread(target=self.fn_enable);
+        t.start();
+        t.join();
 
     def fn_end(self): pass;
     def fn_enable(self): 
+        global g_ui_panel_con;
 
-        panel_top = self._instance._ui_ft.Container(
-            width=450,
-            height=(self._instance._ui_page.height * 0.4), 
-            bgcolor=self._instance._ui_ft.colors.BLACK
+        time.sleep(1);
+
+        g_ui_panel_top = self._instance._ui_ft.Container(
+            expand=True,
+            height=(self._instance._ui_page.height * 0.45), 
+            bgcolor=self._instance._ui_ft.colors.WHITE,
+            border_radius=5
         );
-    
-        panel_bottom = self._instance._ui_ft.Container(
-            width=450,
-            height=(self._instance._ui_page.height * 0.4), 
-            bgcolor=self._instance._ui_ft.colors.BLACK
+
+        time.sleep(1);
+
+        g_ui_panel_bottom = self._instance._ui_ft.Container(
+            expand=True,
+            height=(self._instance._ui_page.height * 0.45), 
+            bgcolor=self._instance._ui_ft.colors.WHITE,
+            border_radius=5
         );
-    
-        self._instance._ui_panel_con = self._instance._ui_ft.Column([panel_top, panel_bottom]);
+        
+        g_ui_panel_con.content = self._instance._ui_ft.Column([g_ui_panel_top, g_ui_panel_bottom]);
+        self._instance._ui_main_con.content = self._instance._ui_ft.Column([g_ui_panel_con]);
         self._instance._ui_page.update();
-    
-        self._instance._ui_panel_top = panel_top;
-        self._instance._ui_panel_bottom = panel_bottom;
 
     def fn_disable(self): pass;
 
