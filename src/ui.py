@@ -84,7 +84,8 @@ class FletUiMainscreen():
         main_container = self._ui_instance._ui_ft.Container(
             width=(self._ui_instance._ui_page.width - 1), 
             height=(self._ui_instance._ui_page.height * 0.9), 
-            bgcolor=self._ui_instance._ui_ft.colors.GREEN_200)
+            border_radius=20,
+            bgcolor=self._ui_instance._ui_ft.colors.GREY_900);
 
         self._ui_instance._ui_page.add(main_container);
         self._ui_instance._ui_page.update();
@@ -144,6 +145,11 @@ class FletUiSearchbar():
 ##################################################
 class FletUiPanel():
     _instance = None;
+
+    _ui_panel_con = None;
+    _ui_panel_top = None;
+    _ui_panel_bottom = None;
+
     _panel_offset = -0.9;
 
     def __init__(self, ui): 
@@ -166,7 +172,7 @@ class FletUiPanel():
         panel_container=self._instance._ui_ft.Container(
             width=500,
             height=(self._instance._ui_page.height * 0.9), 
-            bgcolor=self._instance._ui_ft.colors.GREEN_100,
+            bgcolor=self._instance._ui_ft.colors.GREY_200,
             border_radius=20,
             offset=self._instance._ui_ft.transform.Offset(self._panel_offset, 0),
             animate_offset=self._instance._ui_ft.animation.Animation(300),
@@ -175,9 +181,32 @@ class FletUiPanel():
 
         self._instance._ui_main_con.content = self._instance._ui_ft.Column([panel_container]);
         self._instance._ui_page.update();
+    
+        self._instance._ui_panel_con = panel_container;
+    
+        self.fn_enable();
 
     def fn_end(self): pass;
-    def fn_enable(self): pass;
+    def fn_enable(self): 
+
+        panel_top = self._instance._ui_ft.Container(
+            width=450,
+            height=(self._instance._ui_page.height * 0.4), 
+            bgcolor=self._instance._ui_ft.colors.BLACK
+        );
+    
+        panel_bottom = self._instance._ui_ft.Container(
+            width=450,
+            height=(self._instance._ui_page.height * 0.4), 
+            bgcolor=self._instance._ui_ft.colors.BLACK
+        );
+    
+        self._instance._ui_panel_con = self._instance._ui_ft.Column([panel_top, panel_bottom]);
+        self._instance._ui_page.update();
+    
+        self._instance._ui_panel_top = panel_top;
+        self._instance._ui_panel_bottom = panel_bottom;
+
     def fn_disable(self): pass;
 
 ##################################################
