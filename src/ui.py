@@ -97,7 +97,7 @@ class FletUiMainscreen():
         searchbar.fn_start();
         panel = FletUiPanel(self._ui_instance);
         panel.fn_start();
-        mapView =  FletUiMapbutton(self._ui_instance);
+        mapView =  FletUiMap(self._ui_instance);
         mapView.fn_start();
 
 ##################################################
@@ -209,7 +209,7 @@ class FletUiPanel():
             border_radius=5
         );
 
-        time.sleep(1);
+        #time.sleep(1);
 
         g_ui_panel_bottom = self._instance._ui_ft.Container(
             expand=True,
@@ -225,7 +225,7 @@ class FletUiPanel():
     def fn_disable(self): pass;
 
 ##################################################
-class FletUiMapbutton():
+class FletUiMap():
     _instance = None;
 
     def __init__(self, ui): 
