@@ -1,4 +1,5 @@
 import openai
+import re
 
 from context import * 
 
@@ -59,8 +60,21 @@ class AiPrompt():
                 response = self._instance._ai.ChatCompletion.create(
                     model="gpt-3.5-turbo",
                     messages=[{"role": "system", "content": "You are a doctor."},
-                            {"role": "user", "content": prompt}],
+                            {"role": "user", "content": f"""{prompt}.
+                            이 증상들이 어떤 병의 특징일 수 있으며, 
+                            증상을 완화할 수 있는 상용 약물 성분들을 다음과 같은 JSON 형식으로 제공해 주세요: 
+                            '{{"예상 병명": ["병명1", "병명2"], "성분": ["성분1", "성분2"]}}'
+                             해당 형식을 꼭 지켜주세요."""}],
                     max_tokens=1024
                 );
+            
+            response_text = response.choices[0].message.content;
+            response_str = str(response_text);
+            # print(response_str);
 
-            print(response);
+            pattern = r'\{[^\}]*\}';
+            matches = re.findall(pattern, response_str);
+            # print(matches);
+
+            extracted_string = matches[0] if matches else None;
+            print(extracted_string);
