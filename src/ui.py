@@ -37,8 +37,10 @@ class UiFlet():
             return g_ui_instance;
 ##################################################
 class FletUiMainscreen():
-    _ui_instance = None;
+    _db_instance = None;
+    _map_instance = None;
     _ai_instance = None;
+    _ui_instance = None;
 
     def __init__(self, instance): 
         self._db_instance = instance._db.fn_get_instance();
@@ -93,7 +95,7 @@ class FletUiMainscreen():
 
         self._ui_instance._ui_main_con = main_container;
 
-        searchbar = FletUiSearchbar(self._ui_instance);
+        searchbar = FletUiSearchbar(self._ui_instance, self._ai_instance);
         searchbar.fn_start();
         panel = FletUiPanel(self._ui_instance);
         panel.fn_start();
@@ -103,22 +105,29 @@ class FletUiMainscreen():
 ##################################################
 class FletUiSearchbar():
     _instance = None;
+    _ai_instance = None;
 
-    def __init__(self, ui): 
+    _text_field = None;
+
+    def __init__(self, ui, ai): 
         self._instance = ui.fn_get_instance();
+        self._ai_instance = ai.fn_get_instance();
     
     def fn_start(self):
+
+        self._text_field = self._instance._ui_ft.TextField(
+            hint_text="Send a message",
+            autofocus=True,
+            shift_enter=True,
+            min_lines=1,
+            max_lines=5,
+            filled=True,
+            expand=True
+        );
+        
         searchbar_container = self._instance._ui_ft.Container(
             content=self._instance._ui_ft.Row([
-                self._instance._ui_ft.TextField(
-                    hint_text="Send a message",
-                    autofocus=True,
-                    shift_enter=True,
-                    min_lines=1,
-                    max_lines=5,
-                    filled=True,
-                    expand=True
-                ),
+                self._text_field,
                 self._instance._ui_ft.IconButton(
                     icon=self._instance._ui_ft.icons.SEND_ROUNDED,
                     on_click=self.fn_searchbar_click
@@ -139,8 +148,14 @@ class FletUiSearchbar():
     def fn_end(self): pass;
     def fn_enable(self): pass;
     def fn_disable(self): pass;
-    def fn_searchbar_click(e): 
-        # map
+    def fn_searchbar_click(self, e): 
+        ai_prompt = AiPrompt(self._ai_instance);
+        #------------------------------
+        #test request
+        #ai_prompt.fn_start();
+        #------------------------------
+        prompt = self._text_field.value;
+        ai_prompt.fn_prompt(prompt);
         pass;
 
 ##################################################

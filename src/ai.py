@@ -59,7 +59,7 @@ class AiPrompt():
                 response = self._instance._ai.ChatCompletion.create(
                     model="gpt-3.5-turbo",
                     messages=[{"role": "system", "content": "You are a doctor."},
-                            {"role": "user", "content": "hi"}],
+                            {"role": "user", "content": prompt}],
                     max_tokens=1024
                 );
 
