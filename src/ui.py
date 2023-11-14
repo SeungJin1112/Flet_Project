@@ -2,6 +2,7 @@ import flet as ft
 import time
 import threading
 
+from flet_map import FletMap
 from context import *
 from ai import *
 from db import *
@@ -17,6 +18,7 @@ class UiFlet():
     _ui_page = None;
 #-------------------------------------------------
     _ui_main_con = None;
+    _ui_map_con = None
 
     def __init__(self):
         global g_ui_instance;
@@ -97,10 +99,10 @@ class FletUiMainscreen():
 
         searchbar = FletUiSearchbar(self._ui_instance, self._ai_instance);
         searchbar.fn_start();
-        panel = FletUiPanel(self._ui_instance);
-        panel.fn_start();
         mapView =  FletUiMap(self._ui_instance);
         mapView.fn_start();
+        panel = FletUiPanel(self._ui_instance);
+        panel.fn_start();
 
 ##################################################
 class FletUiSearchbar():
@@ -234,7 +236,8 @@ class FletUiPanel():
         );
         
         g_ui_panel_con.content = self._instance._ui_ft.Column([g_ui_panel_top, g_ui_panel_bottom]);
-        self._instance._ui_main_con.content = self._instance._ui_ft.Column([g_ui_panel_con]);
+        _ui_panel_map_stack = self._instance._ui_ft.Stack([self._instance._ui_map_con, g_ui_panel_con])
+        self._instance._ui_main_con.content = _ui_panel_map_stack
         self._instance._ui_page.update();
 
     def fn_disable(self): pass;
@@ -246,7 +249,16 @@ class FletUiMap():
     def __init__(self, ui): 
         self._instance = ui.fn_get_instance();
     
-    def fn_start(self): pass;
+    def fn_start(self):
+        self._instance._ui_map_con = self._instance._ui_ft.Container(
+            self._instance._ui_ft.ListView(
+                expand=True,
+                controls=[
+                    FletMap(expand=True, latitude=37.496504195637826, longtitude=126.95707883612786, zoom=15, screenView = [8,4],)
+                ]
+            )
+        )
+
     def fn_end(self): pass;
     def fn_enable(self): pass;
     def fn_disable(self): pass;
