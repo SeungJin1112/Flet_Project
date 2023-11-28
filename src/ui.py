@@ -12,6 +12,8 @@ g_ui_instance = None;
 g_ui_title = "AutoMedic";
 g_ui_theme_mode = "dark";
 
+g_prompt_data=None;
+
 ##################################################
 class UiFlet():
     _ui_ft = None;
@@ -101,7 +103,7 @@ class FletUiMainscreen():
         searchbar.fn_start();
         mapView =  FletUiMap(self._ui_instance);
         mapView.fn_start();
-        panel = FletUiPanel(self._ui_instance);
+        panel = FletUiPanel(self._ui_instance, self._db_instance);
         panel.fn_start();
 
 ##################################################
@@ -151,13 +153,15 @@ class FletUiSearchbar():
     def fn_enable(self): pass;
     def fn_disable(self): pass;
     def fn_searchbar_click(self, e): 
+        global g_prompt_data;
+
         ai_prompt = AiPrompt(self._ai_instance);
         #------------------------------
         #test request
         #ai_prompt.fn_start();
         #------------------------------
         prompt = self._text_field.value;
-        ai_prompt.fn_prompt(prompt);
+        g_prompt_data = ai_prompt.fn_prompt(prompt);
         pass;
 
 ##################################################
@@ -170,8 +174,9 @@ class FletUiPanel():
 
     _panel_offset = -0.9;
 
-    def __init__(self, ui): 
+    def __init__(self, ui, db): 
         self._instance = ui.fn_get_instance();
+        self._db_instance = db.fn_get_instance();
     
     def fn_start(self):
         global g_ui_panel_con;
@@ -217,28 +222,52 @@ class FletUiPanel():
     def fn_enable(self): 
         global g_ui_panel_con;
 
-        time.sleep(1);
+        while True:
+            time.sleep(1);
 
-        g_ui_panel_top = self._instance._ui_ft.Container(
-            expand=True,
-            height=(self._instance._ui_page.height * 0.45), 
-            bgcolor=self._instance._ui_ft.colors.WHITE,
-            border_radius=5
-        );
+            g_ui_panel_top = self._instance._ui_ft.Container(
+                expand=True,
+                height=(self._instance._ui_page.height * 0.45), 
+                bgcolor=self._instance._ui_ft.colors.GREY_900,
+                border_radius=20
+            );
 
-        #time.sleep(1);
+            g_ui_panel_bottom = self._instance._ui_ft.Container(
+                expand=True,
+                height=(self._instance._ui_page.height * 0.45), 
+                bgcolor=self._instance._ui_ft.colors.GREY_900,
+                border_radius=20
+            );
 
-        g_ui_panel_bottom = self._instance._ui_ft.Container(
-            expand=True,
-            height=(self._instance._ui_page.height * 0.45), 
-            bgcolor=self._instance._ui_ft.colors.WHITE,
-            border_radius=5
-        );
-        
-        g_ui_panel_con.content = self._instance._ui_ft.Column([g_ui_panel_top, g_ui_panel_bottom]);
-        _ui_panel_map_stack = self._instance._ui_ft.Stack([self._instance._ui_map_con, g_ui_panel_con])
-        self._instance._ui_main_con.content = _ui_panel_map_stack
-        self._instance._ui_page.update();
+            data_top = None;
+            list_top = None;
+
+            if g_prompt_data != None:
+                data_top = self._db_instance.fn_get_main_ingredient(g_prompt_data);
+
+                #<table 방식> //패널 하단 같은 경우는 테이블 방식 사용을 추천함.
+                #columns_top = [self._instance._ui_ft.DataColumn(self._instance._ui_ft.Text("약 명칭"))];
+                #table_top = self._instance._ui_ft.DataTable(columns=columns_top, 
+                #                                        rows=[self._instance._ui_ft.DataRow(
+                #                                            cells=[self._instance._ui_ft.DataCell
+                #                                                   (self._instance._ui_ft.Text(d)) for d in row]) for row in data_top]);
+
+                list_top = self._instance._ui_ft.ListView(spacing=10, padding=20);
+                for item in data_top:
+                    list_top_item = self._instance._ui_ft.Row([self._instance._ui_ft.Text(item, color=self._instance._ui_ft.colors.WHITE)]);
+                    list_top.controls.append(list_top_item);
+                    
+                time.sleep(5);
+
+            if data_top:
+                g_ui_panel_top.content = list_top;
+            
+            print(data_top);
+
+            g_ui_panel_con.content = self._instance._ui_ft.Column([g_ui_panel_top, g_ui_panel_bottom]);
+            _ui_panel_map_stack = self._instance._ui_ft.Stack([self._instance._ui_map_con, g_ui_panel_con])
+            self._instance._ui_main_con.content = _ui_panel_map_stack
+            self._instance._ui_page.update();
 
     def fn_disable(self): pass;
 

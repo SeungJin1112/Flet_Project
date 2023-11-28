@@ -78,3 +78,5 @@ class AiPrompt():
 
             extracted_string = matches[0] if matches else None;
             print(extracted_string);
+
+        return extracted_string;

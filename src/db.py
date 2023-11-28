@@ -1,6 +1,7 @@
 import sqlite3 as sql3
 import os
 import openpyxl
+import json
 
 from context import *
 
@@ -44,7 +45,9 @@ class DbSqlite():
 
     def fn_enable(self): pass;
     def fn_disable(self): pass;
-    def fn_get_instance(self): pass;
+    def fn_get_instance(self): 
+        if g_sql3_instance != None:
+            return g_sql3_instance;
 ##################################################
     def fn_init_create_tables(self):
         self._con = sql3.connect('auto_medic.db');
@@ -107,3 +110,29 @@ class DbSqlite():
         self._con.close()
 
         return count > 0
+##################################################
+    def fn_json_to_sql_data(self, str_json): 
+        # {"예상 병명": ["편두통", "감기"], "성분": ["아세트아미노펜", "진통제"]}
+        data = json.loads(str_json);
+        return data;
+
+    def fn_get_main_ingredient(self, str_json):
+
+        if str_json == None or str_json == "":
+            return None;
+
+        self._con = sql3.connect('auto_medic.db');
+        self._c = self._con.cursor();
+
+        query = [];
+        main_ingredient = json.loads(str_json)["성분"];
+
+        for i in main_ingredient:
+            for row in self._c.execute(f"SELECT product_name FROM T_APPROXIMATELY WHERE main_ingredient LIKE '%{i}%'"):
+                query.append(row[0]);
+        
+        self._con.close();
+
+        return query;
+
+
