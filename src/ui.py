@@ -6,6 +6,7 @@ from flet_map import FletMap
 from context import *
 from ai import *
 from db import *
+from map import *
 
 g_ui_instance = None;
 
@@ -103,7 +104,7 @@ class FletUiMainscreen():
         searchbar.fn_start();
         mapView =  FletUiMap(self._ui_instance);
         mapView.fn_start();
-        panel = FletUiPanel(self._ui_instance, self._db_instance);
+        panel = FletUiPanel(self._ui_instance, self._db_instance, self._map_instance);
         panel.fn_start();
 
 ##################################################
@@ -174,9 +175,10 @@ class FletUiPanel():
 
     _panel_offset = -0.9;
 
-    def __init__(self, ui, db): 
+    def __init__(self, ui, db, map): 
         self._instance = ui.fn_get_instance();
         self._db_instance = db.fn_get_instance();
+        self._map_instance = map.fn_get_instance();
     
     def fn_start(self):
         global g_ui_panel_con;
@@ -222,6 +224,36 @@ class FletUiPanel():
     def fn_enable(self): 
         global g_ui_panel_con;
 
+        data_bottom = self._map_instance.searchKeywords()
+
+        columns_bottom = [
+            self._instance._ui_ft.DataColumn(self._instance._ui_ft.Text("약국, 병원 이름")),
+            self._instance._ui_ft.DataColumn(self._instance._ui_ft.Text("주소"))
+        ]
+
+        rows = []
+        for index, row in data_bottom.iterrows():
+            data_row = self._instance._ui_ft.DataRow(
+                cells=[
+                    self._instance._ui_ft.DataCell(self._instance._ui_ft.Text(row['stores'])),
+                    self._instance._ui_ft.DataCell(self._instance._ui_ft.Text(row['road_address']))
+                ]
+            )
+            rows.append(data_row)
+
+        data_table = self._instance._ui_ft.DataTable(columns=columns_bottom, rows=rows)
+
+        '''
+        list_view = self._instance._ui_ft.ListView()
+
+        for index, row in data_bottom.iterrows():
+            list_item = self._instance._ui_ft.Row([
+                self._instance._ui_ft.Text(row['stores'], width=200),
+                self._instance._ui_ft.Text(row['road_address'], width=200)
+            ])
+            list_view.controls.append(list_item)
+        '''
+
         while True:
             time.sleep(1);
 
@@ -233,8 +265,10 @@ class FletUiPanel():
             );
 
             g_ui_panel_bottom = self._instance._ui_ft.Container(
+                content=data_table,
                 expand=True,
                 height=(self._instance._ui_page.height * 0.45), 
+                width=self._instance._ui_page.width, 
                 bgcolor=self._instance._ui_ft.colors.GREY_900,
                 border_radius=20
             );
@@ -257,7 +291,7 @@ class FletUiPanel():
                     list_top_item = self._instance._ui_ft.Row([self._instance._ui_ft.Text(item, color=self._instance._ui_ft.colors.WHITE)]);
                     list_top.controls.append(list_top_item);
                     
-                time.sleep(5);
+                time.sleep(1);
 
             if data_top:
                 g_ui_panel_top.content = list_top;
@@ -292,6 +326,5 @@ class FletUiMap():
     def fn_enable(self): pass;
     def fn_disable(self): pass;
 ##################################################
-
 
 

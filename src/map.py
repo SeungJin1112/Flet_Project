@@ -2,6 +2,9 @@ import requests
 import pandas as pd
 import numpy as np
 import folium
+import json
+import geocoder
+from geopy.geocoders import Nominatim
 
 g_map_instance = None;
 g_map_rest_api_key = '';
@@ -20,11 +23,17 @@ class MapKaKaoAPI():
     def fn_end(self): pass;
     def fn_enable(self): pass;
     def fn_disable(self): pass;
-    def fn_get_instance(self): pass;
 
-    def _locationData(self, region, page_num):
+    def fn_get_instance(self):
+        global g_map_instance
+
+        if g_map_instance is None:
+            g_map_instance = MapKaKaoAPI()
+        return g_map_instance
+
+    def _locationData(self, region, page_num, lat, lng):
         url = g_map_search_keyword_url
-        params = {'query': region,'page': page_num}
+        params = {'query': region, 'page': page_num, 'x': lng, 'y': lat, 'radius': 2000}
         headers = {"Authorization": "KakaoAK " + g_map_rest_api_key}
 
         places = requests.get(url, params=params, headers=headers).json()['documents']
@@ -50,9 +59,13 @@ class MapKaKaoAPI():
         
         return pd.DataFrame(data)
     
+    '''
     def createMap(self, dfs):
-        # 지도 시작 위치 수정 필 (현재 위치로)
-        m = folium.Map(location=[33.4935,126.6266], zoom_start=12)
+        location = self.currentLocation()
+        lat = float(location['lat'])
+        lng = float(location['lng'])
+
+        m = folium.Map(location=[lat, lng], zoom_start=12)
 
         for i in range(len(dfs)):
             folium.Marker([dfs['Y'][i],dfs['X'][i]],
@@ -61,18 +74,27 @@ class MapKaKaoAPI():
                     ).add_to(m)
             
         return m
+    '''
+    
+    def _currentLocation(self):
+        g = geocoder.ip('me')
+
+        return {'lat': g.latlng[0], 'lng': g.latlng[1]}
 
     def searchKeywords(self):
+        location = self._currentLocation()
+        lat = location['lat']
+        lng = location['lng']
+        print(location)
+
         df = None
         for loca in ['약국', '병원']:
-            for page in range(1,4):
-                local_name = self._locationData(loca, page)
-                local_elec_info = self._locationInfo(local_name)
+            local_name = self._locationData(loca, 1, lat, lng)
+            local_elec_info = self._locationInfo(local_name)
 
-                if df is None:
-                    df = local_elec_info
-                elif local_elec_info is None:
-                    continue
-                else:
-                    df = pd.concat([df, local_elec_info],join='outer', ignore_index = True)
+            if df is None:
+                df = local_elec_info.head(3)
+            else:
+                df = pd.concat([df, local_elec_info.head(3)], join='outer', ignore_index=True)
+
         return df
