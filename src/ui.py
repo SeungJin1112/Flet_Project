@@ -121,7 +121,7 @@ class FletUiSearchbar():
     def fn_start(self):
 
         self._text_field = self._instance._ui_ft.TextField(
-            hint_text="Send a message",
+            hint_text="증상을 입력하세요",
             autofocus=True,
             shift_enter=True,
             min_lines=1,
@@ -233,9 +233,20 @@ class FletUiPanel():
 
         rows = []
         for index, row in data_bottom.iterrows():
+            stores_text = self._instance._ui_ft.Text(
+                disabled=False,
+                spans=[
+                    ft.TextSpan(
+                        row['stores'],
+                        ft.TextStyle(decoration=ft.TextDecoration.UNDERLINE),
+                        url=row['place_url'],
+                    ),
+                ]
+            )
+            
             data_row = self._instance._ui_ft.DataRow(
                 cells=[
-                    self._instance._ui_ft.DataCell(self._instance._ui_ft.Text(row['stores'])),
+                    self._instance._ui_ft.DataCell(stores_text),
                     self._instance._ui_ft.DataCell(self._instance._ui_ft.Text(row['road_address']))
                 ]
             )
@@ -244,6 +255,7 @@ class FletUiPanel():
         data_table = self._instance._ui_ft.DataTable(columns=columns_bottom, rows=rows)
 
         '''
+        # 병원, 약국 패널 list_view 방식
         list_view = self._instance._ui_ft.ListView()
 
         for index, row in data_bottom.iterrows():
@@ -317,7 +329,8 @@ class FletUiMap():
             self._instance._ui_ft.ListView(
                 expand=True,
                 controls=[
-                    FletMap(expand=True, latitude=37.496504195637826, longtitude=126.95707883612786, zoom=15, screenView = [8,4],)
+                    # 숭실대학교 정보과학관 위도, 경도
+                    FletMap(expand=True, latitude=37.49713652385615, longtitude=126.94977033714582, zoom=16, screenView = [8,4],)
                 ]
             )
         )

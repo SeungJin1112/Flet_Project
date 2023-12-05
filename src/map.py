@@ -79,13 +79,16 @@ class MapKaKaoAPI():
     def _currentLocation(self):
         g = geocoder.ip('me')
 
-        return {'lat': g.latlng[0], 'lng': g.latlng[1]}
+        # 현재 위치 위도, 경도 
+        # return {'lat': g.latlng[0], 'lng': g.latlng[1]}
+
+        # 숭실대학교 정보과학관 위도, 경도 
+        return {'lat': 37.494628751291614, 'lng': 126.95963837868054}
 
     def searchKeywords(self):
         location = self._currentLocation()
         lat = location['lat']
         lng = location['lng']
-        print(location)
 
         df = None
         for loca in ['약국', '병원']:
