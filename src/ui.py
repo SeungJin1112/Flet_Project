@@ -102,7 +102,7 @@ class FletUiMainscreen():
 
         searchbar = FletUiSearchbar(self._ui_instance, self._ai_instance);
         searchbar.fn_start();
-        mapView =  FletUiMap(self._ui_instance);
+        mapView =  FletUiMap(self._ui_instance, self._map_instance);
         mapView.fn_start();
         panel = FletUiPanel(self._ui_instance, self._db_instance, self._map_instance);
         panel.fn_start();
@@ -321,16 +321,21 @@ class FletUiPanel():
 class FletUiMap():
     _instance = None;
 
-    def __init__(self, ui): 
+    def __init__(self, ui, map): 
         self._instance = ui.fn_get_instance();
+        self._map_instance = map.fn_get_instance();
     
     def fn_start(self):
+
+        latlng = self._map_instance._currentLocation()
+
         self._instance._ui_map_con = self._instance._ui_ft.Container(
             self._instance._ui_ft.ListView(
                 expand=True,
                 controls=[
                     # 숭실대학교 정보과학관 위도, 경도
                     FletMap(expand=True, latitude=37.49713652385615, longtitude=126.94977033714582, zoom=16, screenView = [8,4],)
+                    # FletMap(expand=True, latitude=latlng['lat'], longtitude=latlng['lng'], zoom=16, screenView = [8,4],)
                 ]
             )
         )
