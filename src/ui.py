@@ -55,7 +55,7 @@ class FletUiMainscreen():
     
     def fn_start(self): 
         if self._ui_instance != None and self._ui_instance._ui_ft != None:
-            self._ui_instance._ui_ft.app(port=8550, target=self.fn_flet_main, view=ft.WEB_BROWSER);
+            self._ui_instance._ui_ft.app(port=8550, target=self.fn_flet_main, view=ft.WEB_BROWSER, assets_dir="image");
     
     def fn_end(self): pass;
     def fn_enable(self): pass;
@@ -329,20 +329,22 @@ class FletUiMap():
 
         latlng = self._map_instance._currentLocation()
 
+        self._map_instance.getStaticMap()
+
+        img = self._instance._ui_ft.Image(
+            src=f"/Users/kangnamhee/SSU/1-2/고급프로그래밍2/flet_project/src/image/test.jpg",
+            fit=ft.ImageFit.CONTAIN,
+            repeat=ft.ImageRepeat.NO_REPEAT
+        )
+
         self._instance._ui_map_con = self._instance._ui_ft.Container(
-            self._instance._ui_ft.ListView(
-                expand=True,
-                controls=[
-                    # 숭실대학교 정보과학관 위도, 경도
-                    FletMap(expand=True, latitude=37.49713652385615, longtitude=126.94977033714582, zoom=16, screenView = [8,4],)
-                    # FletMap(expand=True, latitude=latlng['lat'], longtitude=latlng['lng'], zoom=16, screenView = [8,4],)
-                ]
-            )
+            content=img,
+            height=self._instance._ui_ft.Container.height,
+            width=self._instance._ui_ft.Container.width,
+            expand=True,
         )
 
     def fn_end(self): pass;
     def fn_enable(self): pass;
     def fn_disable(self): pass;
 ##################################################
-
-

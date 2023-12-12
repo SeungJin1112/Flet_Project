@@ -1,14 +1,18 @@
 import requests
 import pandas as pd
 import numpy as np
-import folium
-import json
+import requests
+import io
 import geocoder
+from PIL import Image
 from geopy.geocoders import Nominatim
 
 g_map_instance = None;
-g_map_rest_api_key = '';
+g_map_rest_api_key = '2072e54e0364040f53dda8f558b64e0d';
 g_map_search_category_url = 'https://dapi.kakao.com/v2/local/search/category.json'
+
+g_map_client_id = "l9zt6fqlhb"
+g_map_client_secret = "h84fNL2XTVJ69atcf8zf3jibJpkrC2PVsPKBs35k"
 
 class MapKaKaoAPI():
     _map = None;
@@ -103,3 +107,52 @@ class MapKaKaoAPI():
                 df = pd.concat([df, local_elec_info.head(3)], join='outer', ignore_index=True)
 
         return df
+    
+    def getStaticMap(self):
+        marker_lonlat = {
+            'X': [],
+            'Y': [],
+        }
+
+        result_data = self.searchKeywords()
+
+        for index, row in result_data.iterrows():
+            marker_lonlat['X'].append(row['X'])
+            marker_lonlat['Y'].append(row['Y'])
+
+        endpoint = "https://naveropenapi.apigw.ntruss.com/map-static/v2/raster"
+        headers = {
+            "X-NCP-APIGW-API-KEY-ID": g_map_client_id,
+            "X-NCP-APIGW-API-KEY": g_map_client_secret,
+        }
+        lon, lat = "126.95963837868054", "37.494628751291614"
+        _center = f"{lon},{lat}"
+        _level = 15
+        _w, _h = 1024, 1024
+        _maptype = "basic"
+        _format = "jpg"
+        _scale = 1
+        #_markers = f"""type:d|size:mid|pos:{lon} {lat}|color:red"""
+        markers_list = []
+        for x, y in zip(marker_lonlat['X'], marker_lonlat['Y']):
+            markers_list.append(f"type:d|size:mid|pos:{x} {y}|color:red")
+        _markers = '|'.join(markers_list)
+        _lang = "ko"
+        _dataversion = "201.3"
+
+        url = f"{endpoint}?center={_center}&level={_level}&w={_w}&h={_h}&maptype={_maptype}&format={_format}&scale={_scale}&lang={_lang}&dataversion={_dataversion}&markers={_markers}"
+        res = requests.get(url, headers=headers)
+
+        image_data = io.BytesIO(res.content)
+        image = Image.open(image_data)
+
+        # 새로운 크기 설정
+        new_size = (3000, 1780)
+
+        # 이미지 크기 변경
+        resized_image = image.resize(new_size)
+
+        # 변경된 이미지 저장 (필요한 경우)
+        resized_image.save("src/image/test.jpg")
+        
+        #image.save('test.jpg')
